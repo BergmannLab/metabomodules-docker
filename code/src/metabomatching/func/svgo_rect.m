@@ -1,0 +1,29 @@
+function svgo_rect(x,y,fill,edge,width)
+% SVGO_RECT  Write SVG object: rectangle
+if nargin<5; width=1; end
+if nargin<4; edge='notprov'; end
+if nargin<3; fill='#000000'; end
+if strcmp(edge,'notprov'); edge=fill; end
+global file_id
+if all(round([x,y])==[x,y])
+    ff = '%03d';
+else
+    ff = '%06.2f';
+end
+if length(x)==1
+    x=[x,x];
+end
+if length(y)==1
+    y=[y,y];
+end
+fprintf(file_id,[ ...
+    '<rect ',...
+    'x="',ff,'" ',...
+    'width="',ff,'" ',...
+    'y="',ff,'" ',...
+    'height="',ff,'" ',...
+    'style="fill:',fill,';',...
+    'stroke-width:',num2str(width),';',...
+    'stroke:',edge,'"',...
+    '/>\n'],min(x),abs(x(2)-x(1)),min(y),abs(y(2)-y(1)));
+    

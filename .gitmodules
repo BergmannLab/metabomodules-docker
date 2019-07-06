@@ -1,0 +1,12 @@
+[submodule "src/acp"]
+	path = src/acp
+	url = https://github.com/BKhalili/ACP.git
+[submodule "src/filter"]
+	path = src/filter
+	url = https://github.com/BKhalili/filtering-metabomodules.git
+[submodule "code/src/acp"]
+	path = code/src/acp
+	url = https://github.com/BKhalili/ACP.git
+[submodule "code/src/filter"]
+	path = code/src/filter
+	url = https://github.com/BKhalili/filtering-metabomodules

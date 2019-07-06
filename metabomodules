@@ -1,0 +1,216 @@
+#! /bin/bash -
+
+# Copyright 2019 Bergmann's Lab UNIL <mattia.tomasoni@unil.ch>
+#
+#    This file is part of METABOMODULES Tool.
+#
+#    METABOMODULES Tool is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    METABOMODULES Tool is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    GNU General Public License: <https://www.gnu.org/licenses/>.
+
+working_dir=$PWD
+install_dir="$HOME/.metabomodules"
+
+###################################################################################################
+# HELP USAGE MESSAGE
+###################################################################################################
+
+usage() {
+  echo "USAGE:  metabomodules --input=[...] --container=[...] [OPTIONS]"
+  echo ""
+  echo "  MANDATORY:"
+  echo "  --input=        1H NMR dataset to be analysed (path to file)"
+  echo "  --container=    container type: [docker|singularity]"
+}
+
+###################################################################################################
+# PARAMETERS
+###################################################################################################
+
+# DEFAULTS
+input="not_set"
+output="not_set"
+container="not_set"
+
+# READ USER INPUT #################################################################################
+while [ "$1" != "" ]; do
+  PARAM=`echo $1 | awk -F= '{print $1}'`
+  VALUE=`echo $1 | awk -F= '{print $2}'`
+  case $PARAM in
+    -h | --help)
+      usage 
+      exit
+      ;;
+    --input)
+      input=$VALUE
+      ;;
+    --output)
+      output=$VALUE
+      ;;
+    --container)
+      container=$VALUE
+      ;;
+    *)
+      echo "ERROR: unknown parameter \"$PARAM\""
+      echo ""
+      usage
+      exit 1
+      ;;
+  esac
+  shift
+done
+
+# HANDLE MANDATORY AND DEFAULT PARAMETERS #########################################################
+
+if [ "$input" != "not_set" ]; then
+  if [ ! -f "$input" ]; then
+    echo "ERROR: the input file $input does not exist"
+    exit 1
+  else
+    # copy input network file to designated input location
+    rm -f "$install_dir/code/input.txt";
+    cp $input "$install_dir/code/input.csv";
+  fi
+else
+  echo "ERROR: you must provide an input file (--input option)"
+  usage
+  exit 1
+fi
+
+if [ "$output" != "not_set" ]; then
+  # create dir if it does not exist
+  if [ ! -d "$output" ]; then
+    mkdir $output
+  fi
+  # remove trailing slash if present
+  if [[ $output == */ ]]; then
+    #output=${output::-1}
+    output=${output::${#output}-1}
+  fi
+else
+  output=$working_dir
+fi
+
+if [ "$container" != "docker" -a "$container" != "singularity" ]; then
+  echo "ERROR: you must specify a container type (--container option)"
+  usage
+  exit 1
+fi
+if [ "$container" = "docker" ]; then
+  docker --help > /tmp/docker_test
+  if ! grep -q "Usage:	docker" /tmp/docker_test; then
+    echo "ERROR: you specified --container=docker, but docker is not installed"
+    echo "Please visit https://www.docker.com"
+    exit 1
+  fi
+fi
+if [ "$container" = "singularity" ]; then
+  singularity --help > /tmp/singularity_test
+  if ! grep -q "USAGE: singularity" /tmp/singularity_test; then
+    echo "ERROR: you specified --container=singularity, but singularity is not installed"
+    echo "Please visit http://singularity.lbl.gov"
+    exit 1
+  fi
+fi
+
+
+
+###################################################################################################
+# INVOKE DOCKER/SINGULARITY TO RUN THE CHOSEN METHOD
+###################################################################################################
+
+checkDockerBuildSuccess() {
+  if ! grep -q "Successfully built" /tmp/docker_build_output; then
+    echo "ERROR: docker build returned an error"
+    echo "       - is an internet connection available?"
+    echo "       - is the docker daemon running?"
+    echo "see /tmp/docker_build_output for details"
+    exit 1
+  fi
+}
+
+checkSingularityBuildSuccess() {
+  if ! grep -q "Finalizing Singularity container" /tmp/singularity_build_output; then
+    echo "ERROR: singularity build returned an error"
+    echo "       - is an internet connection available?"
+    echo "       - is singularity running?"
+    echo "see /tmp/singularity_build_output for details"
+    rm -f "$install_dir/containers/"$method"/singularity/"$method"-image.img"
+    exit 1
+  fi
+}
+
+
+# take initial timestamp
+begin=$(date +%s)
+timestamp=`date '+%Y-%m-%d-%H%M%S'`
+# increase stack memory limit
+default_ulimit=$(ulimit -s) #ulimit -s 32768 > /dev/null 2>&1
+
+
+# RUN THE METHOD ##################################################################################
+echo "" && echo "--------------------------------------------------------------------------------"
+echo "METABOMODULES"
+
+if [ "$container" = "singularity" ]
+then
+  # build the singularity image (if image already exists, skip this step)
+  echo "Preparing container, please wait..."
+  if [ ! -f "$install_dir"/containers/singularity/image.img ]; then
+    cd "$install_dir"/containers/singularity/
+    singularity image.create --size 1500 ./image.img > \
+     /tmp/singularity_create_output 2>&1
+    sudo -E env "PATH=$PATH" singularity build ./image.img Singularity > \
+     /tmp/singularity_build_output 2>&1
+    cd ../../..
+    checkSingularityBuildSuccess
+    cd $working_dir
+  fi
+  # run container
+  echo "Running container, please wait..."
+  singularity run \
+   -B "$install_dir"/code:/metabomodules_code/ \
+   "$install_dir"/containers/singularity/image.img > \
+   "$output"/"$timestamp"__metabomodules__console-output 2>&1
+fi
+if [ "$container" = "docker" ]
+then
+  # build the docker image (if image already exists, this command does nothing)
+  echo "Preparing container, please wait..."
+  sudo docker build -t metabomodules-image "$install_dir"/containers/docker \
+   > /tmp/docker_build_output 2>&1
+  checkDockerBuildSuccess
+  # remove (old) container (if exists)
+  sudo docker rm metabomodules-container > /tmp/docker_rm_output 2>&1
+  # run (new) container
+  echo "Running container, please wait..."
+  sudo docker run --name metabomodules-container \
+   -v "$install_dir"/code:/metabomodules_code/ metabomodules-image > \
+   "$output"/"$timestamp"__metabomodules__console-output 2>&1
+fi
+
+ulimit -s $default_ulimit
+end=$(date +%s) # calculate execution time
+tottime=$(expr $end - $begin)
+echo "" && echo "Exectution took $tottime seconds"
+
+# PREPARE OUTPUT AND CLEAN UP TEMP FILES ##########################################################
+
+output_file="$output"/"$timestamp"__metabomodules__results
+
+if [ ! -d "$install_dir"/code/output ]; then
+  echo ERROR: see "$output"/"$timestamp"__metabomodules__console-output
+else
+  mkdir $output_file
+  mv "$install_dir"/code/output/2*/* $output_file
+  echo "DONE: output can be found in $output"
+fi  
+

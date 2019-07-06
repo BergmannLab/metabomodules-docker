@@ -1,0 +1,8 @@
+*.svg
+test.scores.tsv
+zzz.casname
+*.slop
+*.mat
+*.pdf
+parameters.out.tsv
+_*

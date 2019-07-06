@@ -1,0 +1,8 @@
+.settings
+.project
+.pydevproject
+.DS_Store
+__pycache__
+output
+*.tsv
+*.csv
