@@ -17,6 +17,7 @@ To uninstall: ```./uninstall```
 
 ## RUNNING
 To get help with running the tool, install then invoke, from any location: ```metabomodules --help```
+
 For example: **metabomodules --input=/tmp/input.csv --container=docker**
 
 ## INPUT
