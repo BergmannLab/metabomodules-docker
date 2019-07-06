@@ -1,6 +1,5 @@
 # METABOMODULES
-This repository holds the source code for **metabomodules**, a python/command-line pipeline for 
-automatic metabolite identification in 1D NMR data using unsupervised clustering
+This repository holds the source code for **metabomodules**, a Linux/macOS command-line toolbox to for automatic metabolite identification in 1D NMR data using unsupervised clustering.
 
 ## SOURCE CODE
 To get a copy of the source code run:
