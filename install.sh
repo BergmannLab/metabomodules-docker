@@ -68,7 +68,7 @@ echo "  ...OK"
 
 # make metabomodules command available
 echo "- Updating operating system..."
-sudo ln -s ~/.metabomodules/metabomodules /usr/local/bin/metabodomules
+sudo ln -s ~/.metabomodules/metabomodules /usr/local/bin/metabomodules
 echo "  ...OK"
 
 echo "" && echo "FINISHED: metabomodules WAS INSTALLED SUCCESSFULLY."

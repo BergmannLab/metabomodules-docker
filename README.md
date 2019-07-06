@@ -16,15 +16,17 @@ To install: ```./install```
 To uninstall: ```./uninstall```
 
 ## RUNNING
-To get help with running the tool, invoke, from any location: ```metabomodules --help```
+To get help with running the tool, install then invoke, from any location: ```metabomodules --help```
+For example: **metabomodules --input=/tmp/input.csv --container=docker**
 
 ## INPUT
-Processed 1D NMR data in a processed form (peak list)
+In input, provide pre-processed (aligned) 1D NMR data in a tabular form (peak list)
 * firt row: PPM axis
 * first column: sample id
 * each cell i,j, contains the area under the peak found at PPM i for sample j
 
 ## Methods
+The following methods will be applied to the input data in order to automatically identify metabolites
 * **ISA**: Iterative Signature Algorithm
 * **ACP**: Average Correlation Profiles Method
 * **PCA**: Principal Component Analysis
