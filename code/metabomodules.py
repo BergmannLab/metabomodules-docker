@@ -159,28 +159,28 @@ def generate_pseudospectra(output_dir, number_pseudospectra, number_metabomatchi
         run_ACP(dataset_name, input_file, output_dir, 
                    number_pseudospectra, number_metabomatching_permutations, args.OffDiagDist, args.remNeigbPairsFlag)
         #print("\n---------------------------RUNNING PCA-------------------------------\n")
-        run_PCA(dataset_name, input_file, output_dir, 
-                number_pseudospectra, number_metabomatching_permutations)
+        #run_PCA(dataset_name, input_file, output_dir, 
+        #        number_pseudospectra, number_metabomatching_permutations)
         #print("\n---------------------------RUNNING ISA-------------------------------\n")
-        run_ISA(dataset_name, input_file, output_dir, number_metabomatching_permutations, args)
+        #run_ISA(dataset_name, input_file, output_dir, number_metabomatching_permutations, args)
 
 def run_pipeline(args):
-    number_metabomatching_permutations = 9999
+    number_metabomatching_permutations = 99
     output_dir = prepare_output_dir(args.output_root_dir, args.redo_flag)
     if args.redo_flag==False:
         # RUN ALL METHODS ON ALL DATASETS
         print("\n------RUNNING MODULARIZATION METHODS: GENERATING PSEUDOSPACTRA-------\n")
         generate_pseudospectra(output_dir, args.number_pseudospectra, number_metabomatching_permutations, args)
         # RUN METABOMATCHING ON ALL PSEUDOSPECTRA
-        print("\n-------------------METABOMATCHING INITIAL RESULTS--------------------\n")
-        run_metabomatching(output_dir, args.use_octave, number_metabomatching_permutations)
+        #print("\n-------------------METABOMATCHING INITIAL RESULTS--------------------\n")
+        #run_metabomatching(output_dir, args.use_octave, number_metabomatching_permutations)
         # RUN FILTER
-        print("\n------------------------FILTERING RESULTS----------------------------\n")
-        filtered_folder = run_filter(output_dir, args.z_score_threshold, args.adj_score_threshold, args.redo_flag)
-        output_dir = output_dir + filtered_folder
+        #print("\n------------------------FILTERING RESULTS----------------------------\n")
+        #filtered_folder = run_filter(output_dir, args.z_score_threshold, args.adj_score_threshold, args.redo_flag)
+        #output_dir = output_dir + filtered_folder
         # RE-RUN METABOMATCHING ON FILTERED PSEUDOSPECTRA
-        print("\n------------------METABOMATCHING FILTERED RESULTS--------------------\n")
-        run_metabomatching(output_dir, args.use_octave, number_metabomatching_permutations)
+        #print("\n------------------METABOMATCHING FILTERED RESULTS--------------------\n")
+        #run_metabomatching(output_dir, args.use_octave, number_metabomatching_permutations)
     else:
         # RUN-FILTER
         print("\n-----------------------UN-FILTERING RESULTS---------------------------\n")

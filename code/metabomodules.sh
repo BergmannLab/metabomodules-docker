@@ -17,12 +17,14 @@
 #    GNU General Public License: <https://www.gnu.org/licenses/>.
 
 # load parameters from file
-#. /metabomodules_code/parameters.txt
+. /metabomodules_code/parameters.txt
 
 # run metabomodules
 cd /metabomodules_code
 #Rscript --vanilla ./Final.R "$filename" "$b" "$c" "$i" "$filter" "$threshold" "$interWeight" "$weighted" "$dir" "$post" "$smallest" "$largest" "$b2" "$c2" "$i2"
-python3 metabomodules.py --octave --input ./input.csv --output ./output -N 179
+python3 metabomodules.py --octave --input ./input.csv --output ./output \
+	-N "$number_pseudospectra" \
+	--ACP_OffDiagDist "$ACP_OffDiagDist"
 
 # docker generates output files owned by root: make them read/writable
 chmod 777 -R /metabomodules_code
