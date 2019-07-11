@@ -46,6 +46,7 @@ def prepare_output_dir(output_root_dir, redo_flag):
         os.system("mkdir -p " + output_dir)
     else:
         previous_outputs = os.listdir(output_root_dir);
+        print(previous_outputs)
         output_dir = output_root_dir + previous_outputs[-1] + "/";
     return output_dir
     
@@ -166,15 +167,15 @@ def generate_pseudospectra(output_dir, number_pseudospectra, number_metabomatchi
         #run_ACP(dataset_name, input_file, output_dir, 
         #           number_pseudospectra, number_metabomatching_permutations, args.ACP_OffDiagDist, args.ACP_remNeigbPairsFlag)
         #print("\n---------------------------RUNNING PCA-------------------------------\n")
-        #run_PCA(dataset_name, input_file, output_dir, 
-        #        number_pseudospectra, number_metabomatching_permutations)
+        run_PCA(dataset_name, input_file, output_dir, 
+                number_pseudospectra, number_metabomatching_permutations)
         #print("\n---------------------------RUNNING ISA-------------------------------\n")
-        run_ISA(dataset_name, input_file, output_dir, number_metabomatching_permutations, args)
+        #run_ISA(dataset_name, input_file, output_dir, number_metabomatching_permutations, args)
 
 def run_pipeline(args):
     number_metabomatching_permutations = 99
-    output_dir = prepare_output_dir(args.output_root_dir, args.redo_flag)
-    if args.redo_flag==False:
+    output_dir = prepare_output_dir(args.output_root_dir, args.FILTER_redo)
+    if args.FILTER_redo==False:
         # RUN ALL METHODS ON ALL DATASETS
         print("\n------RUNNING MODULARIZATION METHODS: GENERATING PSEUDOSPACTRA-------\n")
         generate_pseudospectra(output_dir, args.number_pseudospectra, number_metabomatching_permutations, args)
@@ -183,7 +184,7 @@ def run_pipeline(args):
         run_metabomatching(output_dir, args.use_octave, number_metabomatching_permutations)
         # RUN FILTER
         print("\n------------------------FILTERING RESULTS----------------------------\n")
-        filtered_folder = run_filter(output_dir, args.z_score_threshold, args.adj_score_threshold, args.redo_flag)
+        filtered_folder = run_filter(output_dir, args.z_score_threshold, args.adj_score_threshold, args.FILTER_redo)
         output_dir = output_dir + filtered_folder
         # RE-RUN METABOMATCHING ON FILTERED PSEUDOSPECTRA
         print("\n------------------METABOMATCHING FILTERED RESULTS--------------------\n")
@@ -191,7 +192,7 @@ def run_pipeline(args):
     else:
         # RUN-FILTER
         print("\n-----------------------UN-FILTERING RESULTS---------------------------\n")
-        filtered_folder = run_filter(output_dir, args.z_score_threshold, args.adj_score_threshold, args.redo_flag)
+        filtered_folder = run_filter(output_dir, args.z_score_threshold, args.adj_score_threshold, args.FILTER_redo)
         output_dir = output_dir + filtered_folder
         # RE-RUN METABOMATCHING ON FILTERED PSEUDOSPECTRA
         print("\n------------------METABOMATCHING FILTERED RESULTS--------------------\n")
@@ -222,6 +223,7 @@ if __name__ == "__main__":
     required_arguments = main_parser.add_argument_group('required named arguments')
     required_arguments.add_argument('--input', action='append', dest='datasets', default=[],
                     help='Add file to the list of datasers be processed', required=True)
+    
     # ACP PARAMETERS
     main_parser.add_argument("--remNeigbPairsFlag", type=str2bool, nargs='?', const=True, default=True,
                     help='ACP parameter: remove pairs that lie in the same neighborhood as other pairs')
@@ -250,12 +252,13 @@ if __name__ == "__main__":
     main_parser.add_argument("--gopseudo", type=str2bool, nargs='?', const=True, default=False)
     
     # FILTER PARAMETERS
-    main_parser.add_argument('--FILETR_z_score_threshold', action="store", default=4, dest="z_score_threshold", type=float, 
+    main_parser.add_argument('--FILTER_z_score_th', action="store", default=4, dest="z_score_threshold", type=float, 
                     help='pseudospectra with values below this threshold are not processed')
-    main_parser.add_argument('--FILETR_adj_score_threshold', action="store", default=2, dest="adj_score_threshold", type=float, 
+    main_parser.add_argument('--FILTER_adj_score_th', action="store", default=2, dest="adj_score_threshold", type=float, 
                     help='pseudospectra that score below this threshold are not processed')
-    main_parser.add_argument('--FILETR_redo', action="store_true", default=False, dest="redo_flag",
+    main_parser.add_argument("--FILTER_redo", type=str2bool, nargs='?', const=True, default=False,
                     help='redo filtering on the output of a previously processed dataset')
+
     
     print("\n------------------STARTING METABOMODULES PIPELINE--------------------\n")
     #print(main_parser.parse_args())

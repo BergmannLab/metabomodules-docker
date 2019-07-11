@@ -42,7 +42,11 @@ python3 metabomodules.py --octave --input ./input.csv --output ./output \
 	--quiet "$ISA_quiet" \
 	--nosweep "$ISA_nosweep" \
 	--onefile "$ISA_onefile" \
-	--gopseudo "$ISA_gopseudo"
+	--gopseudo "$ISA_gopseudo" \
+	--FILTER_z_score_th "$FILTER_z_score_th" \
+	--FILTER_adj_score_th "$FILTER_adj_score_th" \
+	--FILTER_redo "$FILTER_redo"
+
 
 #--ISA_seedmatrix "$ISA_seedmatrix" \
 

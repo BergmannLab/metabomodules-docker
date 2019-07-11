@@ -28,36 +28,40 @@ usage() {
   echo "USAGE:  metabomodules --input=[...] --container=[...] [OPTIONS]"
   echo ""
   echo "  MANDATORY:"
-  echo "  --input=                     path to file: 1H NMR dataset to be analysed"
-  echo "  --container=                 [docker|singularity] container type"
+  echo "    --input=                     path to file: 1H NMR dataset to be analysed"
+  echo "    --container=                 [docker|singularity] container type"
   echo ""
-  echo "  OPTIONAL:"
-  echo "  --output=                    directory in which to output results (default=current direcotry)"
-  echo "  --number_pseudospectra=      integer: number of pseudospectra to generate (default=179)"
-  echo "  (method-specific: ACP)"
-  echo "  --ACP_remNeigbPairsFlag=     [true|false] remove feature pairs in the same neighborhood as other pairs"
-  echo "  --ACP_OffDiagDist=           float: off diagonal distance for correlation matrixi (default=0.1)"
-  echo "  (method-specific: ISA)"
-  echo "  --ISA_seedmatrix             path to file: file containing ISA seeds"
-  echo "  --ISA_dsame                  float (default=0.8)"
-  echo "  --ISA_dconv                  float (default=0.99)"
-  echo "  --ISA_nseed                  int (default=500)"
-  echo "  --ISA_seedsparsity           int (default=3)"
-  echo "  --ISA_maxiter                int (default=50)"
-  echo "  --ISA_sgc                    int (default=0)"
-  echo "  --ISA_sgr                    int (default=1)"
-  echo "  --ISA_thc                    list of int (default \"1,2,3,4,5,6\")"
-  echo "  --ISA_thr                    list of int (default \"1,2,3,4,5,6\")"
-  echo "  --ISA_norm                   string (default=\"double\")"
-  echo "  --ISA_nt                     [true|false] "
-  echo "  --ISA_inputhasheaders        [true|false] "
-  echo "  --ISA_inputhaslabels         [true|false] "
-  echo "  --ISA_nopurge                [true|false] "
-  echo "  --ISA_quiet                  [true|false] "
-  echo "  --ISA_nosweep                [true|false] "
-  echo "  --ISA_onefile                [true|false] "
-  echo "  --ISA_gopseudo               [true|false] "
-  echo ""
+  echo "  OPTIONL:"
+  echo "    --output=                    directory in which to output results (default=current direcotry)"
+  echo "    --number_pseudospectra=      integer: number of pseudospectra to generate (default=179)"
+  echo "  (method-specific options: ACP)"
+  echo "    --ACP_remNeigbPairsFlag=     [true|false] remove feature pairs in the same neighborhood as other pairs"
+  echo "    --ACP_OffDiagDist=           float: off diagonal distance for correlation matrixi (default=0.1)"
+  echo "  (method-specific options: ISA)"
+  echo "    --ISA_seedmatrix             path to file: file containing ISA seeds"
+  echo "    --ISA_dsame                  float (default=0.8)"
+  echo "    --ISA_dconv                  float (default=0.99)"
+  echo "    --ISA_nseed                  int (default=500)"
+  echo "    --ISA_seedsparsity           int (default=3)"
+  echo "    --ISA_maxiter                int (default=50)"
+  echo "    --ISA_sgc                    int (default=0)"
+  echo "    --ISA_sgr                    int (default=1)"
+  echo "    --ISA_thc                    list of int (default \"1,2,3,4,5,6\")"
+  echo "    --ISA_thr                    list of int (default \"1,2,3,4,5,6\")"
+  echo "    --ISA_norm                   string (default=\"double\")"
+  echo "    --ISA_nt                     [true|false] "
+  echo "    --ISA_inputhasheaders        [true|false] "
+  echo "    --ISA_inputhaslabels         [true|false] "
+  echo "    --ISA_nopurge                [true|false] "
+  echo "    --ISA_quiet                  [true|false] "
+  echo "    --ISA_nosweep                [true|false] "
+  echo "    --ISA_onefile                [true|false] "
+  echo "    --ISA_gopseudo               [true|false] "
+  echo "  (filter-specific options)"
+  echo "    --FILETR_z_score_th          int (default 4)"
+  echo "    --FILETR_adj_score_th        int (default 2)"
+  echo "    --FILETR_adj_score_th        int (default 2)"
+  echo "    --FILETR_redo                [true|false]"
 }
 
 ###################################################################################################
@@ -90,7 +94,9 @@ ISA_quiet="false"
 ISA_nosweep="true"
 ISA_onefile="false"
 ISA_gopseudo="false"
-
+FILTER_z_score_th=4
+FILTER_adj_score_th=2
+FILTER_redo="false"
 
 
 # READ USER INPUT #################################################################################
@@ -176,6 +182,15 @@ while [ "$1" != "" ]; do
       ;;
     --ISA_gopseudo)
       ISA_gopseudo=$VALUE
+      ;;
+    --FILTER_z_score_th)
+      FILTER_z_score_th=$VALUE
+      ;;
+    --FILTER_adj_score_th)
+      FILTER_adj_score_th=$VALUE
+      ;;
+    --FILTER_redo)
+      FILTER_redo=$VALUE
       ;;
     *)
       echo ""
@@ -271,6 +286,10 @@ addToParametersFile ISA_quiet "$ISA_quiet"
 addToParametersFile ISA_nosweep "$ISA_nosweep"
 addToParametersFile ISA_onefile "$ISA_onefile"
 addToParametersFile ISA_gopseudo "$ISA_gopseudo"
+addToParametersFile FILTER_z_score_th "$FILTER_z_score_th"
+addToParametersFile FILTER_adj_score_th "$FILTER_adj_score_th"
+addToParametersFile FILTER_redo "$FILTER_redo"
+
 
 
 ###################################################################################################
@@ -304,6 +323,12 @@ begin=$(date +%s)
 timestamp=`date '+%Y-%m-%d-%H%M%S'`
 # increase stack memory limit
 default_ulimit=$(ulimit -s) #ulimit -s 32768 > /dev/null 2>&1
+# if redoing the filtering, make output of previous runs available
+if [ "$FILTER_redo" = "true" ]
+then	
+  echo cp -R "$output"/ "$install_dir"/code/output/
+  cp -R "$output"/ "$install_dir"/code/output/
+fi 
 
 
 # RUN THE METHOD ##################################################################################
@@ -327,9 +352,9 @@ then
   # run container
   echo "Running container, please wait..."
   singularity run \
-   -B "$install_dir"/code:/metabomodules_code/ \
-   "$install_dir"/containers/singularity/image.img > \
-   "$output"/"$timestamp"__metabomodules__console-output 2>&1
+    -B "$install_dir"/code:/metabomodules_code/ \
+    "$install_dir"/containers/singularity/image.img > \
+    "$output"/"$timestamp"__metabomodules__console-output 2>&1
 fi
 if [ "$container" = "docker" ]
 then
@@ -343,8 +368,8 @@ then
   # run (new) container
   echo "Running container, please wait..."
   sudo docker run --name metabomodules-container \
-   -v "$install_dir"/code:/metabomodules_code/ metabomodules-image > \
-   "$output"/"$timestamp"__metabomodules__console-output 2>&1
+    -v "$install_dir"/code:/metabomodules_code/ metabomodules-image > \
+    "$output"/"$timestamp"__metabomodules__console-output 2>&1
 fi
 
 ulimit -s $default_ulimit
@@ -363,4 +388,3 @@ else
   mv "$install_dir"/code/output/2*/* $output_file
   echo "DONE: output can be found in $output"
 fi  
-
