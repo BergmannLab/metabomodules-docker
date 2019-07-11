@@ -17,6 +17,7 @@
 import datetime
 import os
 import argparse
+import copy
 import src.pca.pca_pseudospectra as pca_pseudospectra
 import src.acp.acp_wrp as acp_wrp
 import src.isa.isawrp as isa_wrp
@@ -87,16 +88,22 @@ def run_ISA(dataset_name, input_file, output_dir, number_metabomatching_permutat
     os.system(move_to_isa_dir)
     os.chdir(isa_root_dir)
     
-    # initial run
-    args.inpfile = dataset_name + ".csv"; args.outfile = dataset_name + ".csv"
-    args.header = True; args.label = True; args.gopseudo = True; args.seedsparsity = 3; args.nt = True
-    args.thc = "1,2,3,4,5,6,7"; args.thr = "1,2,3,4,5,6,7"
-    args.sgc = 0; args.sgr = 1; args.dconv = 0.99; args.dsame = 0.50; args.nseed = 250
-    isa_wrp.main(input_file, args)
-    # turn off sweeping and run iterations
+    # initial run (parameters are fixed here)
+    args_initial = copy.deepcopy(args)
+    args_initial.inpfile = dataset_name + ".csv"; args_initial.outfile = dataset_name + ".csv"
+    args_initial.header = True; 
+    args_initial.label = args_initial.inputhaslabels;
+    args_initial.header = args_initial.inputhasheaders;
+    args_initial.gopseudo = True; 
+    args_initial.seedsparsity = 3; args_initial.nt = True
+    args_initial.thc = "1,2,3,4,5,6,7"; args_initial.thr = "1,2,3,4,5,6,7"
+    args_initial.sgc = 0; args_initial.sgr = 1; args_initial.dconv = 0.99; args_initial.dsame = 0.50; args_initial.nseed = 250;
+    isa_wrp.main(input_file, args_initial)
+    # turn off sweeping and run iterations (user-defined parameters are used, sweeping turned off by default)
     for i in range(11, 31):
-        args.outfile = dataset_name + ".attract" + str(i) + ".csv"
-        args.dsame = 0.8; args.nseed = 500; args.nosweep = True; args.nopurge = True;
+        args.inpfile = dataset_name + ".csv"; args.outfile = dataset_name + ".attract" + str(i) + ".csv"
+        args.label = args_initial.inputhaslabels;
+        args.header = args_initial.inputhasheaders;
         isa_wrp.main(input_file, args)
     attractor.main(dataset_name + ".colscore.tsv")
 
@@ -156,13 +163,13 @@ def generate_pseudospectra(output_dir, number_pseudospectra, number_metabomatchi
         else:
             input_file = dataset
         #print("\n---------------------------RUNNING ACP-------------------------------\n")
-        run_ACP(dataset_name, input_file, output_dir, 
-                   number_pseudospectra, number_metabomatching_permutations, args.OffDiagDist, args.remNeigbPairsFlag)
+        #run_ACP(dataset_name, input_file, output_dir, 
+        #           number_pseudospectra, number_metabomatching_permutations, args.ACP_OffDiagDist, args.ACP_remNeigbPairsFlag)
         #print("\n---------------------------RUNNING PCA-------------------------------\n")
         #run_PCA(dataset_name, input_file, output_dir, 
         #        number_pseudospectra, number_metabomatching_permutations)
         #print("\n---------------------------RUNNING ISA-------------------------------\n")
-        #run_ISA(dataset_name, input_file, output_dir, number_metabomatching_permutations, args)
+        run_ISA(dataset_name, input_file, output_dir, number_metabomatching_permutations, args)
 
 def run_pipeline(args):
     number_metabomatching_permutations = 99
@@ -172,15 +179,15 @@ def run_pipeline(args):
         print("\n------RUNNING MODULARIZATION METHODS: GENERATING PSEUDOSPACTRA-------\n")
         generate_pseudospectra(output_dir, args.number_pseudospectra, number_metabomatching_permutations, args)
         # RUN METABOMATCHING ON ALL PSEUDOSPECTRA
-        #print("\n-------------------METABOMATCHING INITIAL RESULTS--------------------\n")
-        #run_metabomatching(output_dir, args.use_octave, number_metabomatching_permutations)
+        print("\n-------------------METABOMATCHING INITIAL RESULTS--------------------\n")
+        run_metabomatching(output_dir, args.use_octave, number_metabomatching_permutations)
         # RUN FILTER
-        #print("\n------------------------FILTERING RESULTS----------------------------\n")
-        #filtered_folder = run_filter(output_dir, args.z_score_threshold, args.adj_score_threshold, args.redo_flag)
-        #output_dir = output_dir + filtered_folder
+        print("\n------------------------FILTERING RESULTS----------------------------\n")
+        filtered_folder = run_filter(output_dir, args.z_score_threshold, args.adj_score_threshold, args.redo_flag)
+        output_dir = output_dir + filtered_folder
         # RE-RUN METABOMATCHING ON FILTERED PSEUDOSPECTRA
-        #print("\n------------------METABOMATCHING FILTERED RESULTS--------------------\n")
-        #run_metabomatching(output_dir, args.use_octave, number_metabomatching_permutations)
+        print("\n------------------METABOMATCHING FILTERED RESULTS--------------------\n")
+        run_metabomatching(output_dir, args.use_octave, number_metabomatching_permutations)
     else:
         # RUN-FILTER
         print("\n-----------------------UN-FILTERING RESULTS---------------------------\n")
@@ -192,6 +199,15 @@ def run_pipeline(args):
 
 if __name__ == "__main__":
     main_parser = argparse.ArgumentParser(description='METABOMODULES')
+    def str2bool(v):
+        if isinstance(v, bool):
+            return v
+        if v.lower() in ('yes', 'true', 't', 'y', '1'):
+            return True
+        elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+            return False
+        else:
+            raise argparse.ArgumentTypeError(v)
 
     # GENERAL PARAMETERS
     main_parser.add_argument('-N', action="store", dest="number_pseudospectra", type=int, 
@@ -207,31 +223,31 @@ if __name__ == "__main__":
     required_arguments.add_argument('--input', action='append', dest='datasets', default=[],
                     help='Add file to the list of datasers be processed', required=True)
     # ACP PARAMETERS
-    main_parser.add_argument('--ACP_remNeigbPairsFlag', action="store_true", default=True, dest="remNeigbPairsFlag",
+    main_parser.add_argument("--remNeigbPairsFlag", type=str2bool, nargs='?', const=True, default=True,
                     help='ACP parameter: remove pairs that lie in the same neighborhood as other pairs')
-    main_parser.add_argument('--ACP_OffDiagDist', action="store", default=0.1, dest="OffDiagDist", type=float, 
+    main_parser.add_argument('--OffDiagDist', action="store", default=0.1, dest="ACP_OffDiagDist", type=float, 
                     help='Off diagonal distance for correlation matrix')
     
     # ISA PARAMETERS
-    main_parser.add_argument('--ISA_seedmatrix',dest='seedfile',default=None)
-    main_parser.add_argument('--ISA_dsame',dest='dsame',default=0.80)
-    main_parser.add_argument('--ISA_dconv',dest='dconv',default=0.975)
-    main_parser.add_argument('--ISA_nseed',dest='nseed',default=100)
-    main_parser.add_argument('--ISA_seedsparsity',dest='seedsparsity',type=int,default=0)
-    main_parser.add_argument('--ISA_maxiter',dest='maxiter',default=50)
-    main_parser.add_argument('--ISA_sgc',dest='sgc',default=0)
-    main_parser.add_argument('--ISA_sgr',dest='sgr',default=1)
-    main_parser.add_argument('--ISA_thc',dest='thc',default='1,2,3')
-    main_parser.add_argument('--ISA_thr',dest='thr',default='1,2,3')
-    main_parser.add_argument('--ISA_norm',dest='norm',default='double')
-    main_parser.add_argument('--ISA_nt',action='store_true',dest='nt',default=False)
-    main_parser.add_argument('--ISA_inputhasheaders',action='store_true',dest='header',default=False)
-    main_parser.add_argument('--ISA_inputhaslabels',action='store_true',dest='label',default=False)
-    main_parser.add_argument('--ISA_nopurge',action='store_true',dest='nopurge',default=False)
-    main_parser.add_argument('--ISA_quiet',action='store_true',dest='quiet',default=False)
-    main_parser.add_argument('--ISA_nosweep',action='store_true',dest='nosweep',default=False)
-    main_parser.add_argument('--ISA_onefile',action='store_true',dest='onefile',default=False)
-    main_parser.add_argument('--ISA_gopseudo',action='store_true',dest='gopseudo',default=False)
+    main_parser.add_argument('--seedmatrix',dest='seedfile',default=None)
+    main_parser.add_argument('--dsame',dest='dsame',default=0.80)
+    main_parser.add_argument('--dconv',dest='dconv',default=0.99, type=float)
+    main_parser.add_argument('--nseed',dest='nseed',default=500,type=int)
+    main_parser.add_argument('--seedsparsity',dest='seedsparsity',default=3,type=int)
+    main_parser.add_argument('--maxiter',dest='maxiter',default=50,type=int)
+    main_parser.add_argument('--sgc',dest='sgc',default=0,type=int)
+    main_parser.add_argument('--sgr',dest='sgr',default=1,type=int)
+    main_parser.add_argument('--thc',dest='thc',default='1,2,3,4,5,6')
+    main_parser.add_argument('--thr',dest='thr',default='1,2,3,4,5,6')
+    main_parser.add_argument('--norm',dest='norm',default='double')
+    main_parser.add_argument("--nt", type=str2bool, nargs='?', const=True, default=True)
+    main_parser.add_argument("--inputhasheaders", type=str2bool, nargs='?', const=True, default=False)
+    main_parser.add_argument("--inputhaslabels", type=str2bool, nargs='?', const=True, default=False)
+    main_parser.add_argument("--nopurge", type=str2bool, nargs='?', const=True, default=True)
+    main_parser.add_argument("--quiet", type=str2bool, nargs='?', const=True, default=False)
+    main_parser.add_argument("--nosweep", type=str2bool, nargs='?', const=True, default=True)
+    main_parser.add_argument("--onefile", type=str2bool, nargs='?', const=True, default=False)
+    main_parser.add_argument("--gopseudo", type=str2bool, nargs='?', const=True, default=False)
     
     # FILTER PARAMETERS
     main_parser.add_argument('--FILETR_z_score_threshold', action="store", default=4, dest="z_score_threshold", type=float, 
@@ -242,5 +258,6 @@ if __name__ == "__main__":
                     help='redo filtering on the output of a previously processed dataset')
     
     print("\n------------------STARTING METABOMODULES PIPELINE--------------------\n")
+    #print(main_parser.parse_args())
     run_pipeline(main_parser.parse_args())
     print("\n------------------FINISHED METABOMODULES PIPELINE--------------------\n")

@@ -21,12 +21,31 @@
 
 # run metabomodules
 cd /metabomodules_code
-#Rscript --vanilla ./Final.R "$filename" "$b" "$c" "$i" "$filter" "$threshold" "$interWeight" "$weighted" "$dir" "$post" "$smallest" "$largest" "$b2" "$c2" "$i2"
 python3 metabomodules.py --octave --input ./input.csv --output ./output \
 	-N "$number_pseudospectra" \
-	--ACP_OffDiagDist "$ACP_OffDiagDist"
+	--OffDiagDist "$ACP_OffDiagDist" \
+	--remNeigbPairsFlag "$ACP_remNeigbPairsFlag" \
+	--dsame "$ISA_dsame" \
+	--dconv "$ISA_dconv" \
+	--nseed "$ISA_nseed" \
+	--seedsparsity "$ISA_seedsparsity" \
+	--maxiter "$ISA_maxiter" \
+	--sgc "$ISA_sgc" \
+	--sgr "$ISA_sgr" \
+	--thc "$ISA_thc" \
+	--thr "$ISA_thr" \
+	--norm "$ISA_norm" \
+	--nt "$ISA_nt" \
+	--inputhasheaders "$ISA_inputhasheaders" \
+	--inputhaslabels "$ISA_inputhaslabels" \
+	--nopurge "$ISA_nopurge" \
+	--quiet "$ISA_quiet" \
+	--nosweep "$ISA_nosweep" \
+	--onefile "$ISA_onefile" \
+	--gopseudo "$ISA_gopseudo"
+
+#--ISA_seedmatrix "$ISA_seedmatrix" \
+
 
 # docker generates output files owned by root: make them read/writable
 chmod 777 -R /metabomodules_code
-
-
