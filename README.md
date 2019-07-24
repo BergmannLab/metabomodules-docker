@@ -11,9 +11,9 @@ Either ```docker``` or ```singularity``` must be installed. Please visit https:/
 The tool was tested on *Ubuntu Linux 18.04*, *CentOS Linux 7.5* and *macOS Sierra* Version 10.12.
 
 ## INSTALLATION
-To install: ```./install```
+To install: ```./install.sh```
 
-To uninstall: ```./uninstall```
+To uninstall: ```./uninstall.sh```
 
 ## RUNNING
 To get help with running the tool, install then invoke, from any location: ```metabomodules --help```
