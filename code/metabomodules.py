@@ -164,13 +164,13 @@ def generate_pseudospectra(output_dir, number_pseudospectra, number_metabomatchi
         else:
             input_file = dataset
         #print("\n---------------------------RUNNING ACP-------------------------------\n")
-        #run_ACP(dataset_name, input_file, output_dir, 
-        #           number_pseudospectra, number_metabomatching_permutations, args.ACP_OffDiagDist, args.ACP_remNeigbPairsFlag)
+        run_ACP(dataset_name, input_file, output_dir, 
+                   number_pseudospectra, number_metabomatching_permutations, args.ACP_OffDiagDist, args.ACP_remNeigbPairsFlag)
         #print("\n---------------------------RUNNING PCA-------------------------------\n")
         run_PCA(dataset_name, input_file, output_dir, 
                 number_pseudospectra, number_metabomatching_permutations)
         #print("\n---------------------------RUNNING ISA-------------------------------\n")
-        #run_ISA(dataset_name, input_file, output_dir, number_metabomatching_permutations, args)
+        run_ISA(dataset_name, input_file, output_dir, number_metabomatching_permutations, args)
 
 def run_pipeline(args):
     number_metabomatching_permutations = 99
