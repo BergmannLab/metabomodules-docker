@@ -207,11 +207,12 @@ done
 
 if [ "$input" != "not_set" ]; then
   if [ ! -f "$input" ]; then
-    echo "ERROR: the input file $input does not exist"
+    echo "ERROR: please provide a valid file for the --input option."
+    "       the file $input does not exist."
     exit 1
   else
-    # copy input network file to designated input location
-    rm -f "$install_dir/code/input.txt";
+    # copy input file to designated input location
+    rm -f "$install_dir/code/input.csv";
     cp $input "$install_dir/code/input.csv";
   fi
 else
