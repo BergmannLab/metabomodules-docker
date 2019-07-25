@@ -225,7 +225,7 @@ if __name__ == "__main__":
                     help='Add file to the list of datasers be processed', required=True)
     
     # ACP PARAMETERS
-    main_parser.add_argument("--remNeigbPairsFlag", type=str2bool, nargs='?', const=True, default=True,
+    main_parser.add_argument("--remNeigbPairsFlag", type=str2bool, nargs='?', const=True, default=True, dest="ACP_remNeigbPairsFlag",
                     help='ACP parameter: remove pairs that lie in the same neighborhood as other pairs')
     main_parser.add_argument('--OffDiagDist', action="store", default=0.1, dest="ACP_OffDiagDist", type=float, 
                     help='Off diagonal distance for correlation matrix')
