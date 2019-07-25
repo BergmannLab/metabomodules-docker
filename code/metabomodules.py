@@ -46,7 +46,6 @@ def prepare_output_dir(output_root_dir, redo_flag):
         os.system("mkdir -p " + output_dir)
     else:
         previous_outputs = os.listdir(output_root_dir);
-        print(previous_outputs)
         output_dir = output_root_dir + previous_outputs[-1] + "/";
     return output_dir
     
