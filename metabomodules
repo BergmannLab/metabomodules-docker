@@ -34,6 +34,7 @@ usage() {
   echo "  OPTIONL:"
   echo "    --output=                    directory in which to output results (default=current direcotry)"
   echo "    --number_pseudospectra=      integer: number of pseudospectra to generate (default=179)"
+  echo "    --number_permutations=       integer: number of metabomatching permutations (default=9999, recommended: 9999+)"
   echo "  (method-specific options: ACP)"
   echo "    --ACP_remNeigbPairsFlag=     [true|false] remove feature pairs in the same neighborhood as other pairs"
   echo "    --ACP_OffDiagDist=           float: off diagonal distance for correlation matrixi (default=0.1)"
@@ -73,6 +74,7 @@ input="not_set"
 output="not_set"
 container="not_set"
 number_pseudospectra=179
+number_permutations=9999
 ACP_OffDiagDist="0.1"
 ACP_remNeigbPairsFlag="true"
 ISA_seedmatrix="not_set"
@@ -119,6 +121,9 @@ while [ "$1" != "" ]; do
       ;;
     --number_pseudospectra)
       number_pseudospectra=$VALUE
+      ;;
+    --number_permutations)
+      number_permutations=$VALUE
       ;;
     --ACP_OffDiagDist)
       ACP_OffDiagDist=$VALUE
@@ -266,6 +271,7 @@ addToParametersFile() {
 rm -f "$install_dir/code/parameters.txt"
 touch "$install_dir/code/parameters.txt"
 addToParametersFile number_pseudospectra "$number_pseudospectra"
+addToParametersFile number_permutations "$number_permutations"
 addToParametersFile ACP_OffDiagDist "$ACP_OffDiagDist"
 addToParametersFile ACP_remNeigbPairsFlag "$ACP_remNeigbPairsFlag"
 addToParametersFile ISA_seedmatrix "$ISA_seedmatrix"

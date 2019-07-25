@@ -172,7 +172,7 @@ def generate_pseudospectra(output_dir, number_pseudospectra, number_metabomatchi
         run_ISA(dataset_name, input_file, output_dir, number_metabomatching_permutations, args)
 
 def run_pipeline(args):
-    number_metabomatching_permutations = 99
+    number_metabomatching_permutations = args.number_permutations
     output_dir = prepare_output_dir(args.output_root_dir, args.FILTER_redo)
     if args.FILTER_redo==False:
         # RUN ALL METHODS ON ALL DATASETS
@@ -222,6 +222,9 @@ if __name__ == "__main__":
     required_arguments = main_parser.add_argument_group('required named arguments')
     required_arguments.add_argument('--input', action='append', dest='datasets', default=[],
                     help='Add file to the list of datasers be processed', required=True)
+    main_parser.add_argument('--number_permutations', action="store", type=int, dest='number_permutations', default=9999, 
+                    help='Number of metabomatching permutations')
+
     
     # ACP PARAMETERS
     main_parser.add_argument("--remNeigbPairsFlag", type=str2bool, nargs='?', const=True, default=True, dest="ACP_remNeigbPairsFlag",
