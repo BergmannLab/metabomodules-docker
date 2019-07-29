@@ -171,8 +171,14 @@ def generate_pseudospectra(output_dir, number_pseudospectra, number_metabomatchi
         #print("\n---------------------------RUNNING ISA-------------------------------\n")
         run_ISA(dataset_name, input_file, output_dir, number_metabomatching_permutations, args)
 
+def set_number_metabomatching_permutations(number_metabomatching_permutations):
+    if number_metabomatching_permutations < 9999:
+        print("\nWARNING: the number of permutations has been set to a" + number_metabomatching_permutations)
+        print("\n         For the filtering work reliably, we reccommend values > 9999.")
+    return number_metabomatching_permutations
+
 def run_pipeline(args):
-    number_metabomatching_permutations = args.number_permutations
+    number_metabomatching_permutations = set_number_metabomatching_permutations(args.number_permutations)
     output_dir = prepare_output_dir(args.output_root_dir, args.FILTER_redo)
     if args.FILTER_redo==False:
         # RUN ALL METHODS ON ALL DATASETS
