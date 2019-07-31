@@ -23,6 +23,7 @@
 cd /metabomodules_code
 python3 metabomodules.py --octave --input ./input.csv --output ./output \
 	-N "$number_pseudospectra" \
+	--method "$method" \
 	--number_permutations "$number_permutations" \
 	--OffDiagDist "$ACP_OffDiagDist" \
 	--remNeigbPairsFlag "$ACP_remNeigbPairsFlag" \

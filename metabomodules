@@ -30,10 +30,10 @@ usage() {
   echo "  MANDATORY:"
   echo "    --input=                     path to file: 1H NMR dataset to be analysed"
   echo "    --container=                 [docker|singularity] container type"
-  echo "    --method=                    [acp|isa|pca] method to be run (default=all methods will be run)"
   echo ""
   echo "  OPTIONL:"
   echo "    --output=                    directory in which to output results (default=current direcotry)"
+  echo "    --method=                    [acp|isa|pca] method to be run (default=all methods will be run)"
   echo "    --number_pseudospectra=      integer: number of pseudospectra to generate (default=179)"
   echo "    --number_permutations=       integer: number of metabomatching permutations (default=9999, recommended: 9999+)"
   echo "  (method-specific options: ACP)"
@@ -73,6 +73,7 @@ usage() {
 # DEFAULTS
 input="not_set"
 output="not_set"
+method="not_set" 
 container="not_set"
 number_pseudospectra=179
 number_permutations=9999
@@ -119,6 +120,9 @@ while [ "$1" != "" ]; do
       ;;
     --output)
       output=$VALUE
+      ;;
+    --method)
+      method=$VALUE
       ;;
     --number_pseudospectra)
       number_pseudospectra=$VALUE
@@ -263,6 +267,18 @@ else
   output=$working_dir
 fi
 
+if [ "$method" != "not_set" ]; then
+  if [ "$method" != "isa" ]; then
+    if [ "$method" != "acp" ]; then
+      if [ "$method" != "pca" ]; then
+        echo "ERROR: you specified --method=$method: $method is not a valid method"
+        exit 1
+      fi
+    fi
+  fi
+fi
+
+
 
 
 # WRITE PARAMETERS TO FILE ########################################################################
@@ -271,6 +287,7 @@ addToParametersFile() {
 }
 rm -f "$install_dir/code/parameters.txt"
 touch "$install_dir/code/parameters.txt"
+addToParametersFile method "$method"
 addToParametersFile number_pseudospectra "$number_pseudospectra"
 addToParametersFile number_permutations "$number_permutations"
 addToParametersFile ACP_OffDiagDist "$ACP_OffDiagDist"
@@ -389,7 +406,7 @@ echo "" && echo "Exectution took $tottime seconds"
 
 output_file="$output"/"$timestamp"__metabomodules__results
 
-if [ ! -d "$install_dir"/code/output ]; then
+if [ ! -f "$install_dir"/code/output/2*/* ]; then
   echo ERROR: see "$output"/"$timestamp"__metabomodules__console-output
 else
   mkdir $output_file

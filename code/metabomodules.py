@@ -64,6 +64,12 @@ def generate_parameters_file(parameters_file, number_metabomatching_permutations
         if crScale != None:
             file.write("crscale\t" + crScale + "\n")
 
+def set_number_metabomatching_permutations(number_metabomatching_permutations):
+    if number_metabomatching_permutations < 9999:
+        print("\nWARNING: the number of permutations has been set to a" + number_metabomatching_permutations)
+        print("\n         For the filtering work reliably, we reccommend values > 9999.")
+    return number_metabomatching_permutations
+
 def run_PCA(dataset_name, input_file, output_dir, number_pseudospectra, number_metabomatching_permutations):
     pca_output_dir = output_dir + 'ps.pca.' + dataset_name + '/'
     os.mkdir(pca_output_dir)
@@ -162,20 +168,18 @@ def generate_pseudospectra(output_dir, number_pseudospectra, number_metabomatchi
             input_file = ISApaper_root_dir + dataset
         else:
             input_file = dataset
-        #print("\n---------------------------RUNNING ACP-------------------------------\n")
-        run_ACP(dataset_name, input_file, output_dir, 
-                   number_pseudospectra, number_metabomatching_permutations, args.ACP_OffDiagDist, args.ACP_remNeigbPairsFlag)
-        #print("\n---------------------------RUNNING PCA-------------------------------\n")
-        run_PCA(dataset_name, input_file, output_dir, 
-                number_pseudospectra, number_metabomatching_permutations)
-        #print("\n---------------------------RUNNING ISA-------------------------------\n")
-        run_ISA(dataset_name, input_file, output_dir, number_metabomatching_permutations, args)
 
-def set_number_metabomatching_permutations(number_metabomatching_permutations):
-    if number_metabomatching_permutations < 9999:
-        print("\nWARNING: the number of permutations has been set to a" + number_metabomatching_permutations)
-        print("\n         For the filtering work reliably, we reccommend values > 9999.")
-    return number_metabomatching_permutations
+        if args.user_method=="acp" or args.user_method=="not_set":
+            print("\n---------------------------RUNNING ACP-------------------------------\n")
+            run_ACP(dataset_name, input_file, output_dir, number_pseudospectra, number_metabomatching_permutations, args.ACP_OffDiagDist, args.ACP_remNeigbPairsFlag)
+        if args.user_method=="pca" or args.user_method=="not_set":
+            print("\n---------------------------RUNNING PCA-------------------------------\n")
+            run_PCA(dataset_name, input_file, output_dir, number_pseudospectra, number_metabomatching_permutations)
+        if args.user_method=="isa" or args.user_method=="not_set":
+            print("\n---------------------------RUNNING ISA-------------------------------\n")
+            run_ISA(dataset_name, input_file, output_dir, number_metabomatching_permutations, args)
+
+
 
 def run_pipeline(args):
     number_metabomatching_permutations = set_number_metabomatching_permutations(args.number_permutations)
@@ -202,6 +206,11 @@ def run_pipeline(args):
         # RE-RUN METABOMATCHING ON FILTERED PSEUDOSPECTRA
         print("\n------------------METABOMATCHING FILTERED RESULTS--------------------\n")
         run_metabomatching(output_dir, args.use_octave, number_metabomatching_permutations)
+
+
+
+
+
 
 if __name__ == "__main__":
     main_parser = argparse.ArgumentParser(description='METABOMODULES')
@@ -230,8 +239,9 @@ if __name__ == "__main__":
                     help='Add file to the list of datasers be processed', required=True)
     main_parser.add_argument('--number_permutations', action="store", type=int, dest='number_permutations', default=9999, 
                     help='Number of metabomatching permutations')
+    main_parser.add_argument('--method', action="store", dest="user_method",
+                    help='method to be run, [acp|isa|pca] (default=all methods will be run')
 
-    
     # ACP PARAMETERS
     main_parser.add_argument("--remNeigbPairsFlag", type=str2bool, nargs='?', const=True, default=True, dest="ACP_remNeigbPairsFlag",
                     help='ACP parameter: remove pairs that lie in the same neighborhood as other pairs')
