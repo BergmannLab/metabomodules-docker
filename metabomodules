@@ -239,16 +239,16 @@ fi
 if [ "$container" = "docker" ]; then
   docker --help > /tmp/docker_test
   if ! grep -q "Usage:	docker" /tmp/docker_test; then
-    echo "ERROR: you specified --container=docker, but docker is not installed"
-    echo "Please visit https://www.docker.com"
+    echo "ERROR: you specified --container=docker, but docker is not installed."
+    echo "       Please visit https://www.docker.com"
     exit 1
   fi
 fi
 if [ "$container" = "singularity" ]; then
   singularity --help > /tmp/singularity_test
   if ! grep -q "USAGE: singularity" /tmp/singularity_test; then
-    echo "ERROR: you specified --container=singularity, but singularity is not installed"
-    echo "Please visit http://singularity.lbl.gov"
+    echo "ERROR: you specified --container=singularity, but singularity is not installed."
+    echo "       Please visit http://singularity.lbl.gov"
     exit 1
   fi
 fi
@@ -406,8 +406,9 @@ echo "" && echo "Exectution took $tottime seconds"
 
 output_file="$output"/"$timestamp"__metabomodules__results
 
-if [ ! -f "$install_dir"/code/output/2*/* ]; then
-  echo ERROR: see "$output"/"$timestamp"__metabomodules__console-output
+if ls "$install_dir"/code/output/2* 1> /dev/null 2>&1; then
+  echo "ERROR: no output was generated. "
+  echo "       see "$output"/"$timestamp"__metabomodules__console-output"
 else
   mkdir $output_file
   mv "$install_dir"/code/output/2*/* $output_file
