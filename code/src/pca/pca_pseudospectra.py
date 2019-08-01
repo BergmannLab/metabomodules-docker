@@ -24,15 +24,15 @@
 '''
 
 import csv
+import pandas
 import numpy as np
 from sklearn import decomposition
 
 def import_data(input_file):
-    input_reader = csv.reader(open(input_file, "r"), delimiter=",")
-    features = np.array(list(input_reader)).astype("double")
-    # extract first column (PPM labels)
-    shifts = features[0:1,1:].transpose()
-    features = np.delete(features, (0), axis=0) # delete PPM labels
+    df = pandas.read_csv(input_file, header=None) # read data
+    features = df.values # extract feature 
+    shifts = features[0:1,1:].transpose() # extract feature labels
+    features = np.delete(features, (0), axis=0) # delete feature labels
     features = np.delete(features, (0), axis=1) # delete participant id labels
     return [shifts, features]
 

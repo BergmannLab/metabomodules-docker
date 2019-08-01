@@ -406,7 +406,7 @@ echo "" && echo "Exectution took $tottime seconds"
 
 output_file="$output"/"$timestamp"__metabomodules__results
 
-if ls "$install_dir"/code/output/2* 1> /dev/null 2>&1; then
+if ls "$install_dir"/code/output/2*/* 1> /dev/null 2>&1; then
   echo "ERROR: no output was generated. "
   echo "       see "$output"/"$timestamp"__metabomodules__console-output"
 else

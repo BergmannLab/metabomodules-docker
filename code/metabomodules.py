@@ -66,8 +66,8 @@ def generate_parameters_file(parameters_file, number_metabomatching_permutations
 
 def set_number_metabomatching_permutations(number_metabomatching_permutations):
     if number_metabomatching_permutations < 9999:
-        print("\nWARNING: the number of permutations has been set to a" + number_metabomatching_permutations)
-        print("\n         For the filtering work reliably, we reccommend values > 9999.")
+        print("\nWARNING: the number of permutations has been set to " + str(number_metabomatching_permutations))
+        print("         For the filtering work reliably, we recommend values > 9999.")
     return number_metabomatching_permutations
 
 def run_PCA(dataset_name, input_file, output_dir, number_pseudospectra, number_metabomatching_permutations):
@@ -129,8 +129,8 @@ def run_metabomatching(output_dir, use_octave, number_p):
         run_metabomatching = octave_root_dir + "octave metabomatching.m"
     else:
         print("Run metabomatching with MATLAB") 
-        run_metabomatching = matlab_root_dir + "matlab -nodisplay -nosplash -nodesktop -r \"run('" \
-            + metabomatching_root_dir + "metabomatching.m');quit\""
+        #run_metabomatching = matlab_root_dir + "matlab -nodisplay -nosplash -nodesktop -r \"run('" \
+        #    + metabomatching_root_dir + "metabomatching.m');quit\""
     print("NUMBER OF PERMUTATIONS: " + str(number_p))
     os.system(clean_previous_run)
     os.system(move_to_metabomatching_dir)
