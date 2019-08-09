@@ -18,12 +18,14 @@ import datetime
 import os
 import argparse
 import copy
+import glob
 import src.pca.pca_pseudospectra as pca_pseudospectra
 import src.acp.acp_wrp as acp_wrp
 import src.isa.isawrp as isa_wrp
 import src.isa.attractor as attractor
 import src.filter.filtersig_wrp as filtersig_wrp
 import metabomodules_config
+import traceback
 
 octave_root_dir = metabomodules_config.resources['octave_root_dir'] + '/'
 ISApaper_root_dir = metabomodules_config.resources['current_dir'] + '/'
@@ -151,10 +153,20 @@ def run_filter(output_dir, z_score_threshold, adj_score_threshold, redo_flag):
     os.system(clean_previous_run)
     move_to_filter_dir = "mv " + output_dir + "ps.* " + filter_root_dir
     os.system(move_to_filter_dir)
-    filtered_folder = filtersig_wrp.main(filter_root_dir, z_score_threshold, adj_score_threshold, redo_flag)
+    try:
+        filtered_folder = filtersig_wrp.main(filter_root_dir, z_score_threshold, adj_score_threshold, redo_flag)
+    except IndexError as e:
+        raise Exception("\nERROR: the filtering procedure encountered an error."+\
+                "\n       please re-run with a lower --FILETR_z_score_th")
+    
+    no_results_after_filtering= not glob.glob(filter_root_dir + "z_score*")
+    if no_results_after_filtering:
+        raise Exception("\nERROR: no significant pseudospectra were found after filtering."+\
+                "\n       please re-run with a lower --FILETR_z_score_th")
+
     if redo_flag: # in case the user re-run the filter with the same thresholds
         remove_duplicates = "rm -rf " + output_dir_previous_run + filtered_folder
-        os.system(remove_duplicates) 
+        os.system(remove_duplicates)
     os.system(move_back)
     return filtered_folder + "/"
 

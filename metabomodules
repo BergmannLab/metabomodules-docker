@@ -19,6 +19,7 @@
 working_dir=$PWD
 install_dir="$HOME/.metabomodules"
 
+
 ###################################################################################################
 # HELP USAGE MESSAGE
 ###################################################################################################
@@ -60,10 +61,9 @@ usage() {
   echo "    --ISA_onefile                [true|false] "
   echo "    --ISA_gopseudo               [true|false] "
   echo "  (filter-specific options)"
-  echo "    --FILETR_z_score_th          int (default 4)"
-  echo "    --FILETR_adj_score_th        int (default 2)"
-  echo "    --FILETR_adj_score_th        int (default 2)"
-  echo "    --FILETR_redo                [true|false]"
+  echo "    --FILTER_z_score_th          int (default 4)"
+  echo "    --FILTER_adj_score_th        int (default 2)"
+  echo "    --FILTER_redo                [true|false]"
 }
 
 ###################################################################################################
@@ -406,11 +406,13 @@ echo "" && echo "Exectution took $tottime seconds"
 
 output_file="$output"/"$timestamp"__metabomodules__results
 
-if ls "$install_dir"/code/output/2*/* 1> /dev/null 2>&1; then
+mv "$install_dir"/code/output/2* $output_file
+
+if [ -z "$(ls -A $output_file)" ]; then
   echo "ERROR: no output was generated. "
   echo "       see "$output"/"$timestamp"__metabomodules__console-output"
+  rm -rf $output_file
 else
-  mkdir $output_file
-  mv "$install_dir"/code/output/2*/* $output_file
   echo "DONE: output can be found in $output"
-fi  
+fi
+

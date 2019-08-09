@@ -21,7 +21,7 @@ resources = dict(
         )
 
 #resources = dict(
-#        current_dir = '/Users/mtomason/.metabomodules/',
+#        current_dir = '/Users/mtomason/.metabomodules/code/',
 #        octave_root_dir = '/Applications/Octave-4.4.1.app/Contents/Resources/usr/bin/'
 #        )
 
