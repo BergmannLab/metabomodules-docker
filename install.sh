@@ -51,7 +51,7 @@ if [ $? -eq "0" ]; then singularity_installed=true; else singularity_installed=f
 
 if ! $docker_installed && ! $singularity_installed; then
   echo "  ERROR: Neither docker nor singularity are installed."
-  echo "    Install either of the two to successfully run monet."
+  echo "    Install either of the two to successfully run metabomodules."
   echo "    Please visit https://www.docker.com or http://singularity.lbl.gov"
   echo "" && echo "ABORTING: monet WAS NOT INSTALLED."
   exit 1
