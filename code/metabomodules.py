@@ -251,7 +251,7 @@ if __name__ == "__main__":
                     help='Add file to the list of datasers be processed', required=True)
     main_parser.add_argument('--number_permutations', action="store", type=int, dest='number_permutations', default=9999, 
                     help='Number of metabomatching permutations')
-    main_parser.add_argument('--method', action="store", dest="user_method",
+    main_parser.add_argument('--method', action="store", default="not_set", dest="user_method",
                     help='method to be run, [acp|isa|pca] (default=all methods will be run')
 
     # ACP PARAMETERS
