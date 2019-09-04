@@ -44,9 +44,9 @@ fi
 
 # check that either docker or singularity are installed
 echo "- Checking that docker and/or singularity are installed..."
-docker --help > /tmp/docker_test 2>&1
+sudo docker --help > /tmp/docker_test 2>&1
 if [ $? -eq "0" ]; then docker_installed=true; else docker_installed=false; fi
-singularity --help > /tmp/singularity_test 2>&1
+sudo singularity --help > /tmp/singularity_test 2>&1
 if [ $? -eq "0" ]; then singularity_installed=true; else singularity_installed=false; fi
 
 if ! $docker_installed && ! $singularity_installed; then
