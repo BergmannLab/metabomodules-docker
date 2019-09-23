@@ -20,13 +20,6 @@ echo
 echo "Uninstalling metabomodules"
 echo 
 
-# ask for root password (needed to remove /usr/local/bin/monet)
-echo "Superuser rights are required."
-sudo ls > /dev/null
-echo
-
-
-sudo rm -f /usr/local/bin/metabomodules
 rm -rf ~/.metabomodules
 echo FINISHED: metabomodules was UNINSTALLED SUCCESSFULLY.
 echo
