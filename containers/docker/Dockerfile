@@ -14,7 +14,7 @@
 #
 #    GNU General Public License: <https://www.gnu.org/licenses/>.
 
-FROM python:3
+FROM python:3.7
 LABEL maintainer="Mattia Tomasoni <mattia.tomasoni@unil.ch>"
 
 ###############################################################################
