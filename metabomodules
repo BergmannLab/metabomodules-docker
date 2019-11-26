@@ -347,6 +347,8 @@ checkSingularityBuildSuccess() {
 begin=$(date +%s)
 timestamp=`date '+%Y-%m-%d-%H%M%S'`
 # increase stack memory limit
+# clear previous run (this is a precation, in the case errors occurred)
+rm -rf "$install_dir"/code/output/2*
 default_ulimit=$(ulimit -s) #ulimit -s 32768 > /dev/null 2>&1
 # if redoing the filtering, make output of previous runs available
 if [ "$FILTER_redo" = "true" ]
