@@ -12,7 +12,7 @@ import glob
 import matplotlib.pyplot as pl
 import sys
 
-def main(cmdarg): 
+def main(cmdarg, nkeep=179): 
   
     def corr2_coeff(A,B):
         # Rowwise mean of input arrays & subtract from input arrays themeselves
@@ -33,7 +33,6 @@ def main(cmdarg):
     fn_infoout = 'isa.'+fn_info
     fn_comp = glob.glob(cmdarg.replace('colscore','attract*colscore'))
     dcomp = 0.5
-    nkeep = 179
     # sig = pandas.read_csv('ps.isa_colaus1.align.decov.pseudospectrum.tsv',header=0,index_col=0,sep='\t')
     info = pandas.read_csv(fn_info,header=0,index_col=0,sep='\t')
     modu = pandas.read_csv(fn_modu,header=0,index_col=0,sep='\t')

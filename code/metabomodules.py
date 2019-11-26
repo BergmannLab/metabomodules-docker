@@ -87,7 +87,7 @@ def run_ACP(dataset_name, input_file, output_dir, number_pseudospectra, number_m
     stocsy_parameters_file = stocsy_output_dir + 'parameters.in.tsv'
     generate_parameters_file(stocsy_parameters_file, number_metabomatching_permutations, numb_samples, crScale)
 
-def run_ISA(dataset_name, input_file, output_dir, number_metabomatching_permutations, args):
+def run_ISA(dataset_name, input_file, output_dir, number_pseudospectra, number_metabomatching_permutations, args):
     isa_output_dir = output_dir + 'ps.isa.' + dataset_name + '/'
     os.mkdir(isa_output_dir)
     clean_previous_run = "rm -rf " + isa_root_dir + "*.tsv "+ isa_root_dir + "*.csv"
@@ -113,7 +113,7 @@ def run_ISA(dataset_name, input_file, output_dir, number_metabomatching_permutat
         args.label = args_initial.inputhaslabels;
         args.header = args_initial.inputhasheaders;
         isa_wrp.main(input_file, args)
-    attractor.main(dataset_name + ".colscore.tsv")
+    attractor.main(dataset_name + ".colscore.tsv", number_pseudospectra)
 
     move_back = "cp " + isa_root_dir + "isa.*pseudospectrum.tsv " + isa_root_dir + "isa.*info.tsv " + isa_output_dir
     os.system(move_back)
@@ -189,7 +189,7 @@ def generate_pseudospectra(output_dir, number_pseudospectra, number_metabomatchi
             run_PCA(dataset_name, input_file, output_dir, number_pseudospectra, number_metabomatching_permutations)
         if args.user_method=="isa" or args.user_method=="not_set":
             print("\n---------------------------RUNNING ISA-------------------------------\n")
-            run_ISA(dataset_name, input_file, output_dir, number_metabomatching_permutations, args)
+            run_ISA(dataset_name, input_file, output_dir, number_pseudospectra, number_metabomatching_permutations, args)
 
 
 
